@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing at St. Anthony's Primary School | Crescit Eundo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --lasalle-green: #00703C;
+      --lasalle-dark: #004D29;
+      --phoenix-gold: #F2A900;
+      --phoenix-light: #FEF3C7;
+      --cream-bg: #F6F9F7;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cream-bg);
+      color: #1e293b;
+      background-image:
+        radial-gradient(rgba(0, 112, 60, 0.06) 1px, transparent 1px),
+        radial-gradient(rgba(242, 169, 0, 0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      background-position: 0 0, 14px 14px;
+    }
+
+    .font-serif-crest {
+      font-family: 'Fraunces', serif;
+    }
+
+    .font-mono-typing {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Typing Character States */
+    .char-correct {
+      color: #00703C;
+      background-color: rgba(0, 112, 60, 0.12);
+      border-radius: 4px;
+    }
+
+    .char-current {
+      color: #111827;
+      background-color: #F2A900;
+      border-bottom: 3px solid #004D29;
+      border-radius: 4px;
+      animation: pulseCursor 1s infinite;
+    }
+
+    .char-error {
+      color: #ffffff;
+      background-color: #dc2626;
+      border-radius: 4px;
+      animation: shakeChar 0.25s ease-in-out;
+    }
+
+    .char-pending {
+      color: #94a3b8;
+    }
+
+    @keyframes pulseCursor {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(242, 169, 0, 0.5); }
+      50% { box-shadow: 0 0 0 4px rgba(242, 169, 0, 0.25); }
+    }
+
+    @keyframes shakeChar {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+
+    /* Virtual Keyboard Keycaps */
+    .key-cap {
+      transition: all 0.08s ease;
+      box-shadow: 0 3px 0 #cbd5e1;
+      user-select: none;
+    }
+
+    .key-cap.key-target {
+      background-color: #F2A900 !important;
+      color: #004D29 !important;
+      border-color: #00703C !important;
+      box-shadow: 0 3px 0 #00703C;
+      transform: translateY(-1px);
+    }
+
+    .key-cap.key-pressed {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #94a3b8;
+    }
+
+    /* Home Row Tactile Bump */
+    .home-bump::after {
+      content: '';
+      display: block;
+      width: 10px;
+      height: 2px;
+      background-color: currentColor;
+      margin: 2px auto 0;
+      border-radius: 2px;
+      opacity: 0.7;
+    }
+
+    /* Smooth Tab Transitions */
+    .fade-in {
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- ========================================================= -->
+  <!-- TOP NAVIGATION HEADER (LA SALLE GREEN & PHOENIX GOLD)     -->
+  <!-- ========================================================= -->
+  <header id="mainHeader" class="hidden sticky top-0 z-40 bg-[#00703C] text-white shadow-md border-b-4 border-[#F2A900]">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- School Brand & Crest -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="app.showScreen('stages')">
+        <div class="w-11 h-11 rounded-xl bg-white p-1 shadow flex items-center justify-center shrink-0">
+          <!-- Custom SAPS Crest SVG -->
+          <svg viewBox="0 0 120 130" class="w-full h-full" aria-label="St. Anthony's Primary School Crest">
+            <path d="M18 28 L60 12 L102 28 L96 86 C92 104 60 120 60 120 C60 120 28 104 24 86 Z" fill="#F2A900" stroke="#1e293b" stroke-width="3"/>
+            <path d="M12 24 C28 12 46 18 60 26 C74 18 92 12 108 24 C96 32 82 32 60 34 C38 32 24 32 12 24 Z" fill="#334155"/>
+            <circle cx="60" cy="60" r="30" fill="#ffffff" stroke="#1e293b" stroke-width="2.5"/>
+            <circle cx="60" cy="60" r="22" fill="#00703C"/>
+            <rect x="46" y="45" width="28" height="30" rx="4" fill="#c8102e" stroke="#ffffff" stroke-width="1.5"/>
+            <rect x="54" y="52" width="12" height="15" rx="2" fill="#ffffff"/>
+            <polygon points="60,94 62.5,101 70,101 64,105.5 66.5,112.5 60,108 53.5,112.5 56,105.5 50,101 57.5,101" fill="#00703C"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-serif-crest font-bold text-base sm:text-lg leading-tight tracking-wide text-white">
+              St. Anthony's Primary School
+            </h1>
+            <span class="hidden md:inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#F2A900] text-[#004D29]">
+              Crescit Eundo
+            </span>
+          </div>
+          <p class="text-xs text-emerald-100">Anthonian Touch-Typing Studio (P1 &amp; P2)</p>
+        </div>
+      </div>
+
+      <!-- Navigation Pills & Student Info -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+        <nav class="flex items-center bg-[#004D29] p-1 rounded-xl border border-emerald-600/40">
+          <button id="navStagesBtn" onclick="app.showScreen('stages')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-[#F2A900] text-[#004D29]">
+            Lessons
+          </button>
+          <button id="navCanteenBtn" onclick="app.showScreen('canteen')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-white hover:bg-emerald-800 transition">
+            🍜 Canteen Game
+          </button>
+          <button id="navPassportBtn" onclick="app.showScreen('passport')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-white hover:bg-emerald-800 transition">
+            🏅 My Passport
+          </button>
+        </nav>
+
+        <!-- Sound Toggle -->
+        <button id="soundToggleBtn" onclick="soundEngine.toggle()" title="Toggle Sound" class="p-2 rounded-xl bg-[#004D29] hover:bg-emerald-800 text-[#F2A900] border border-emerald-600/40 transition">
+          <span id="soundIcon">🔊</span>
+        </button>
+
+        <!-- Student Pill + Switch Student -->
+        <div class="flex items-center gap-2 bg-[#004D29] px-3 py-1.5 rounded-xl border border-emerald-600/40">
+          <div class="text-right">
+            <div id="headerStudentName" class="text-xs font-bold text-white leading-none">Student</div>
+            <div id="headerStudentClass" class="text-[11px] font-semibold text-[#F2A900] leading-tight mt-0.5">1 Gratitude</div>
+          </div>
+          <button onclick="app.logoutStudent()" class="ml-1 text-xs px-2 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-emerald-100 font-medium transition" title="Switch Student">
+            Exit
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 0: STUDENT LOGIN PAGE                              -->
+  <!-- ========================================================= -->
+  <main id="screenLogin" class="flex-1 flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border-2 border-[#00703C]/20 overflow-hidden fade-in">
+      <!-- Top Crest Banner -->
+      <div class="bg-[#00703C] text-white p-6 text-center border-b-4 border-[#F2A900]">
+        <div class="w-20 h-20 mx-auto mb-3 bg-white rounded-2xl p-2 shadow-md flex items-center justify-center">
+          <svg viewBox="0 0 120 130" class="w-full h-full" aria-label="SAPS Logo">
+            <path d="M18 28 L60 12 L102 28 L96 86 C92 104 60 120 60 120 C60 120 28 104 24 86 Z" fill="#F2A900" stroke="#1e293b" stroke-width="3"/>
+            <path d="M12 24 C28 12 46 18 60 26 C74 18 92 12 108 24 C96 32 82 32 60 34 C38 32 24 32 12 24 Z" fill="#334155"/>
+            <circle cx="60" cy="60" r="30" fill="#ffffff" stroke="#1e293b" stroke-width="2.5"/>
+            <circle cx="60" cy="60" r="22" fill="#00703C"/>
+            <rect x="46" y="45" width="28" height="30" rx="4" fill="#c8102e" stroke="#ffffff" stroke-width="1.5"/>
+            <rect x="54" y="52" width="12" height="15" rx="2" fill="#ffffff"/>
+            <polygon points="60,94 62.5,101 70,101 64,105.5 66.5,112.5 60,108 53.5,112.5 56,105.5 50,101 57.5,101" fill="#00703C"/>
+          </svg>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-widest text-[#F2A900]">St. Anthony's Primary School</p>
+        <h1 class="font-serif-crest text-2xl font-bold mt-1">Anthonian Typing Adventure</h1>
+        <p class="text-xs text-emerald-100 mt-1">Enter to Learn. Leave to Serve. • Primary 1 &amp; Primary 2</p>
+      </div>
+
+      <!-- Student Sign-In Form -->
+      <form id="loginForm" onsubmit="app.handleLogin(event)" class="p-6 space-y-5">
+        <div>
+          <label for="studentNameInput" class="block text-sm font-bold text-slate-700 mb-1.5">
+            1. What is your name?
+          </label>
+          <input
+            id="studentNameInput"
+            type="text"
+            required
+            maxlength="40"
+            placeholder="e.g. Ethan Tan"
+            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#00703C] focus:outline-none text-base font-medium text-slate-800"
+          />
+        </div>
+
+        <div>
+          <label for="studentClassSelect" class="block text-sm font-bold text-slate-700 mb-1.5">
+            2. Select your Class
+          </label>
+          <select
+            id="studentClassSelect"
+            required
+            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-[#00703C] focus:outline-none text-base font-semibold text-slate-800 bg-white"
+          >
+            <option value="" disabled selected>-- Choose your P1 or P2 Class --</option>
+            <optgroup label="Primary 1 Classes">
+              <option value="1 Gratitude">1 Gratitude</option>
+              <option value="1 Respect">1 Respect</option>
+              <option value="1 Resilience">1 Resilience</option>
+              <option value="1 Responsibility">1 Responsibility</option>
+              <option value="1 Integrity">1 Integrity</option>
+              <option value="1 Faith">1 Faith</option>
+              <option value="1 Service">1 Service</option>
+              <option value="1 Community">1 Community</option>
+            </optgroup>
+            <optgroup label="Primary 2 Classes">
+              <option value="2 Gratitude">2 Gratitude</option>
+              <option value="2 Respect">2 Respect</option>
+              <option value="2 Resilience">2 Resilience</option>
+              <option value="2 Responsibility">2 Responsibility</option>
+              <option value="2 Integrity">2 Integrity</option>
+              <option value="2 Faith">2 Faith</option>
+              <option value="2 Service">2 Service</option>
+              <option value="2 Community">2 Community</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div id="loginErrorMsg" class="hidden text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">
+          Please enter your name and choose your class.
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-3.5 px-6 rounded-xl bg-[#00703C] hover:bg-[#004D29] text-white font-bold text-base shadow-lg border-b-4 border-[#F2A900] transition transform active:scale-[0.99]"
+        >
+          Start Typing Adventure →
+        </button>
+
+        <p class="text-center text-xs text-slate-400">
+          Your progress is saved automatically for your teacher.
+        </p>
+      </form>
+    </div>
+  </main>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 1: LESSON SELECTION MAP                            -->
+  <!-- ========================================================= -->
+  <section id="screenStages" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 py-6 space-y-6 fade-in">
+    <!-- Hero Welcome Banner -->
+    <div class="bg-[#00703C] text-white rounded-3xl p-6 sm:p-8 shadow-lg border-b-4 border-[#F2A900] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div class="space-y-2 max-w-2xl">
+        <span id="levelBadge" class="inline-block px-3 py-1 rounded-full bg-[#F2A900] text-[#004D29] text-xs font-extrabold uppercase tracking-wider">
+          Primary 1 Touch-Typing Track
+        </span>
+        <h2 id="welcomeHeading" class="font-serif-crest text-2xl sm:text-3xl font-bold">
+          Welcome, Anthonian!
+        </h2>
+        <p id="welcomeSubtext" class="text-sm sm:text-base text-emerald-100 leading-relaxed">
+          Rest your pointer fingers on the F and J bumps. Take your time and type accurately—every star helps our Phoenix soar!
+        </p>
+      </div>
+
+      <!-- Quick Progress Card -->
+      <div class="bg-[#004D29] rounded-2xl p-4 sm:p-5 border border-emerald-500/30 w-full md:w-auto min-w-[230px] shrink-0">
+        <div class="flex items-center justify-between text-xs text-emerald-200 font-semibold">
+          <span>Lessons Completed</span>
+          <span id="progressFraction" class="text-[#F2A900] font-bold">0 / 6</span>
+        </div>
+        <div class="w-full h-3 bg-emerald-950 rounded-full overflow-hidden mt-2">
+          <div id="overallProgressBar" class="h-full bg-[#F2A900] rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="text-emerald-100">Total Stars: <strong id="totalStarsLabel" class="text-[#F2A900]">0 ⭐</strong></span>
+          <button onclick="app.showScreen('canteen')" class="text-[#F2A900] hover:underline font-bold">
+            Play Canteen →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stage Grid -->
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="trackTitle" class="font-serif-crest text-xl font-bold text-[#004D29]">
+          Your Touch-Typing Lessons
+        </h3>
+        <span class="text-xs font-semibold text-slate-500">Click any lesson card to start</span>
+      </div>
+      <div id="stagesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Populated dynamically by JS based on P1 or P2 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 2: ACTIVE TYPING ARENA                             -->
+  <!-- ========================================================= -->
+  <section id="screenTyping" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 py-6 space-y-5 fade-in">
+    <!-- Top Arena Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center gap-3">
+        <button onclick="app.showScreen('stages')" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition">
+          ← All Lessons
+        </button>
+        <div>
+          <span id="arenaStageBadge" class="text-[11px] font-bold uppercase tracking-wider text-[#00703C]">Lesson 1</span>
+          <h2 id="arenaStageTitle" class="font-serif-crest font-bold text-lg text-slate-800 leading-tight">First Steps: F &amp; J</h2>
+        </div>
+      </div>
+
+      <!-- Live Telemetry -->
+      <div class="flex items-center gap-3 sm:gap-5">
+        <div class="text-center px-3 py-1.5 rounded-xl bg-[#F6F9F7] border border-[#00703C]/20">
+          <div class="text-[10px] font-bold uppercase text-slate-500">Speed</div>
+          <div class="text-base sm:text-lg font-extrabold text-[#00703C]"><span id="liveWpm">0</span> <span class="text-xs font-semibold">WPM</span></div>
+        </div>
+        <div class="text-center px-3 py-1.5 rounded-xl bg-[#F6F9F7] border border-[#00703C]/20">
+          <div class="text-[10px] font-bold uppercase text-slate-500">Accuracy</div>
+          <div class="text-base sm:text-lg font-extrabold text-[#00703C]"><span id="liveAccuracy">100</span>%</div>
+        </div>
+        <div class="text-center px-3 py-1.5 rounded-xl bg-[#FEF3C7] border border-[#F2A900]">
+          <div class="text-[10px] font-bold uppercase text-amber-800">Goal</div>
+          <div class="text-base sm:text-lg font-extrabold text-amber-900"><span id="goalWpm">8</span> <span class="text-xs font-semibold">WPM</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phoenix Flight Progress Track -->
+    <div class="bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-200">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-1.5">
+        <span id="passageCounter">Sentence 1 of 4</span>
+        <span>Crescit Eundo • Growing as We Advance</span>
+      </div>
+      <div class="relative w-full h-3 bg-slate-100 rounded-full overflow-visible">
+        <div id="arenaProgressFill" class="h-full bg-[#00703C] rounded-full transition-all duration-200" style="width: 0%"></div>
+        <div id="phoenixRunner" class="absolute -top-2.5 text-lg transition-all duration-200 select-none" style="left: 0%">🦅</div>
+      </div>
+    </div>
+
+    <!-- Main Typing Prompt Box -->
+    <div
+      id="typingBoxContainer"
+      onclick="game.focusInput()"
+      class="bg-white rounded-3xl p-6 sm:p-10 shadow-md border-2 border-[#00703C]/30 focus-within:border-[#00703C] focus-within:ring-4 focus-within:ring-[#F2A900]/30 cursor-text relative transition"
+    >
+      <!-- Focus Ready Pill -->
+      <div class="flex justify-center mb-4">
+        <span id="focusStatusPill" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#00703C] border border-[#00703C]/20">
+          <span class="w-2 h-2 rounded-full bg-[#00703C] animate-pulse"></span>
+          <span id="focusStatusText">Ready to type! Start pressing keys on your keyboard</span>
+        </span>
+      </div>
+
+      <!-- Hidden text input matching the working Canteen game input -->
+      <input
+        id="hiddenTypingInput"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        class="opacity-0 absolute pointer-events-none"
+        aria-label="Type the sentence shown"
+      />
+
+      <div id="passageDisplay" class="font-mono-typing text-2xl sm:text-3xl md:text-4xl font-semibold tracking-wide leading-relaxed text-center select-none break-words">
+        <!-- Characters injected here -->
+      </div>
+
+      <!-- Finger Guidance Banner -->
+      <div class="mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 text-[#004D29] bg-[#FEF3C7] px-3.5 py-2 rounded-xl border border-[#F2A900]">
+          <span>👆</span>
+          <span id="fingerHintText">Place your left pointer finger on <strong>F</strong> and right pointer finger on <strong>J</strong>.</span>
+        </div>
+        <button type="button" onclick="event.stopPropagation(); game.restartStage();" class="text-slate-500 hover:text-[#00703C] font-semibold px-3 py-1.5 rounded-lg hover:bg-slate-100 transition">
+          ↻ Restart Lesson
+        </button>
+      </div>
+    </div>
+
+    <!-- Interactive Visual QWERTY Keyboard + Finger Placement Guide -->
+    <div class="bg-slate-800 p-3 sm:p-5 rounded-3xl shadow-inner border-4 border-slate-700 overflow-x-auto space-y-4">
+      <div id="visualKeyboard" class="min-w-[540px] max-w-3xl mx-auto space-y-2 text-center font-mono-typing text-xs sm:text-sm font-bold text-slate-700">
+        <!-- Row 1 -->
+        <div class="grid grid-cols-10 gap-1.5">
+          <div class="key-cap bg-rose-100 rounded-lg py-2.5 border border-rose-300" data-key="Q" data-finger="L-PINKY">Q</div>
+          <div class="key-cap bg-amber-100 rounded-lg py-2.5 border border-amber-300" data-key="W" data-finger="L-RING">W</div>
+          <div class="key-cap bg-sky-100 rounded-lg py-2.5 border border-sky-300" data-key="E" data-finger="L-MIDDLE">E</div>
+          <div class="key-cap bg-emerald-100 rounded-lg py-2.5 border border-emerald-300" data-key="R" data-finger="L-INDEX">R</div>
+          <div class="key-cap bg-emerald-100 rounded-lg py-2.5 border border-emerald-300" data-key="T" data-finger="L-INDEX">T</div>
+          <div class="key-cap bg-purple-100 rounded-lg py-2.5 border border-purple-300" data-key="Y" data-finger="R-INDEX">Y</div>
+          <div class="key-cap bg-purple-100 rounded-lg py-2.5 border border-purple-300" data-key="U" data-finger="R-INDEX">U</div>
+          <div class="key-cap bg-cyan-100 rounded-lg py-2.5 border border-cyan-300" data-key="I" data-finger="R-MIDDLE">I</div>
+          <div class="key-cap bg-orange-100 rounded-lg py-2.5 border border-orange-300" data-key="O" data-finger="R-RING">O</div>
+          <div class="key-cap bg-pink-100 rounded-lg py-2.5 border border-pink-300" data-key="P" data-finger="R-PINKY">P</div>
+        </div>
+        <!-- Row 2 (Home Row) -->
+        <div class="grid grid-cols-10 gap-1.5 px-4">
+          <div class="key-cap bg-rose-100 rounded-lg py-2.5 border border-rose-300" data-key="A" data-finger="L-PINKY">A</div>
+          <div class="key-cap bg-amber-100 rounded-lg py-2.5 border border-amber-300" data-key="S" data-finger="L-RING">S</div>
+          <div class="key-cap bg-sky-100 rounded-lg py-2.5 border border-sky-300" data-key="D" data-finger="L-MIDDLE">D</div>
+          <div class="key-cap home-bump bg-emerald-200 rounded-lg py-2.5 border-2 border-[#00703C] text-[#004D29]" data-key="F" data-finger="L-INDEX">F</div>
+          <div class="key-cap bg-emerald-100 rounded-lg py-2.5 border border-emerald-300" data-key="G" data-finger="L-INDEX">G</div>
+          <div class="key-cap bg-purple-100 rounded-lg py-2.5 border border-purple-300" data-key="H" data-finger="R-INDEX">H</div>
+          <div class="key-cap home-bump bg-purple-200 rounded-lg py-2.5 border-2 border-[#00703C] text-[#004D29]" data-key="J" data-finger="R-INDEX">J</div>
+          <div class="key-cap bg-cyan-100 rounded-lg py-2.5 border border-cyan-300" data-key="K" data-finger="R-MIDDLE">K</div>
+          <div class="key-cap bg-orange-100 rounded-lg py-2.5 border border-orange-300" data-key="L" data-finger="R-RING">L</div>
+          <div class="key-cap bg-pink-100 rounded-lg py-2.5 border border-pink-300" data-key=";" data-finger="R-PINKY">;</div>
+        </div>
+        <!-- Row 3 -->
+        <div class="grid grid-cols-9 gap-1.5 px-8">
+          <div class="key-cap bg-rose-100 rounded-lg py-2.5 border border-rose-300" data-key="Z" data-finger="L-PINKY">Z</div>
+          <div class="key-cap bg-amber-100 rounded-lg py-2.5 border border-amber-300" data-key="X" data-finger="L-RING">X</div>
+          <div class="key-cap bg-sky-100 rounded-lg py-2.5 border border-sky-300" data-key="C" data-finger="L-MIDDLE">C</div>
+          <div class="key-cap bg-emerald-100 rounded-lg py-2.5 border border-emerald-300" data-key="V" data-finger="L-INDEX">V</div>
+          <div class="key-cap bg-emerald-100 rounded-lg py-2.5 border border-emerald-300" data-key="B" data-finger="L-INDEX">B</div>
+          <div class="key-cap bg-purple-100 rounded-lg py-2.5 border border-purple-300" data-key="N" data-finger="R-INDEX">N</div>
+          <div class="key-cap bg-purple-100 rounded-lg py-2.5 border border-purple-300" data-key="M" data-finger="R-INDEX">M</div>
+          <div class="key-cap bg-cyan-100 rounded-lg py-2.5 border border-cyan-300" data-key="," data-finger="R-MIDDLE">,</div>
+          <div class="key-cap bg-orange-100 rounded-lg py-2.5 border border-orange-300" data-key="." data-finger="R-RING">.</div>
+        </div>
+        <!-- Spacebar -->
+        <div class="px-20 pt-0.5">
+          <div class="key-cap bg-yellow-100 rounded-lg py-2.5 border border-yellow-300 text-xs tracking-widest text-slate-700" data-key="SPACE" data-finger="THUMB">
+            SPACEBAR (THUMBS)
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-Hand Visual Finger Placement Diagram -->
+      <div class="min-w-[540px] max-w-3xl mx-auto pt-3 border-t border-slate-700">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/80 rounded-2xl px-4 py-3 text-white">
+          <!-- Left Hand Diagram -->
+          <div class="flex items-end gap-1.5">
+            <div class="text-[11px] font-bold text-slate-400 mr-2 self-center">Left Hand</div>
+            <div data-hand-finger="L-PINKY" class="finger-pill flex flex-col items-center justify-end w-9 h-12 rounded-t-full bg-rose-200 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>A</span>
+              <span class="text-[8px] opacity-75">Pinky</span>
+            </div>
+            <div data-hand-finger="L-RING" class="finger-pill flex flex-col items-center justify-end w-9 h-14 rounded-t-full bg-amber-200 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>S</span>
+              <span class="text-[8px] opacity-75">Ring</span>
+            </div>
+            <div data-hand-finger="L-MIDDLE" class="finger-pill flex flex-col items-center justify-end w-9 h-16 rounded-t-full bg-sky-200 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>D</span>
+              <span class="text-[8px] opacity-75">Mid</span>
+            </div>
+            <div data-hand-finger="L-INDEX" class="finger-pill flex flex-col items-center justify-end w-9 h-15 rounded-t-full bg-emerald-300 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-[#00703C] transition">
+              <span>F •</span>
+              <span class="text-[8px] opacity-75">Index</span>
+            </div>
+            <div data-hand-finger="THUMB" class="finger-pill flex flex-col items-center justify-end w-10 h-9 rounded-t-full bg-yellow-200 text-slate-900 text-[9px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>Space</span>
+            </div>
+          </div>
+
+          <!-- Active Finger Callout -->
+          <div class="text-center px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700">
+            <div class="text-[10px] uppercase tracking-wider text-[#F2A900] font-bold">Active Finger</div>
+            <div id="activeFingerLabel" class="text-xs sm:text-sm font-extrabold text-white mt-0.5">Left Index (F)</div>
+          </div>
+
+          <!-- Right Hand Diagram -->
+          <div class="flex items-end gap-1.5">
+            <div data-hand-finger="THUMB" class="finger-pill flex flex-col items-center justify-end w-10 h-9 rounded-t-full bg-yellow-200 text-slate-900 text-[9px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>Space</span>
+            </div>
+            <div data-hand-finger="R-INDEX" class="finger-pill flex flex-col items-center justify-end w-9 h-15 rounded-t-full bg-purple-300 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-[#00703C] transition">
+              <span>• J</span>
+              <span class="text-[8px] opacity-75">Index</span>
+            </div>
+            <div data-hand-finger="R-MIDDLE" class="finger-pill flex flex-col items-center justify-end w-9 h-16 rounded-t-full bg-cyan-200 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>K</span>
+              <span class="text-[8px] opacity-75">Mid</span>
+            </div>
+            <div data-hand-finger="R-RING" class="finger-pill flex flex-col items-center justify-end w-9 h-14 rounded-t-full bg-orange-200 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>L</span>
+              <span class="text-[8px] opacity-75">Ring</span>
+            </div>
+            <div data-hand-finger="R-PINKY" class="finger-pill flex flex-col items-center justify-end w-9 h-12 rounded-t-full bg-pink-200 text-slate-900 text-[10px] font-extrabold pb-1 border-2 border-transparent transition">
+              <span>;</span>
+              <span class="text-[8px] opacity-75">Pinky</span>
+            </div>
+            <div class="text-[11px] font-bold text-slate-400 ml-2 self-center">Right Hand</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 3: ANTHONIAN CANTEEN & HAWKER STALL MINI-GAME      -->
+  <!-- ========================================================= -->
+  <section id="screenCanteen" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6 fade-in">
+    <div class="bg-[#00703C] text-white rounded-3xl p-6 shadow-lg border-b-4 border-[#F2A900] flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#F2A900] text-[#004D29]">
+          Recess Time Mini-Game
+        </span>
+        <h2 class="font-serif-crest text-2xl font-bold mt-1.5">Anthonian Canteen &amp; Hawker Stall</h2>
+        <p class="text-xs sm:text-sm text-emerald-100">Type each recess order accurately to serve hungry schoolmates and teachers before the bell rings!</p>
+      </div>
+      <div class="flex items-center gap-4 bg-[#004D29] px-4 py-3 rounded-2xl border border-emerald-500/30">
+        <div class="text-center">
+          <div class="text-[10px] uppercase text-emerald-200 font-bold">Time Left</div>
+          <div id="hawkerTimer" class="text-xl font-extrabold text-[#F2A900]">60s</div>
+        </div>
+        <div class="h-8 w-px bg-emerald-700"></div>
+        <div class="text-center">
+          <div class="text-[10px] uppercase text-emerald-200 font-bold">Served</div>
+          <div id="hawkerScore" class="text-xl font-extrabold text-white">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canteen Game Stage -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-[#00703C]/20 text-center space-y-6">
+      <div id="hawkerIntroView" class="space-y-4 py-4">
+        <div class="text-5xl">🍜 🥪 🧃</div>
+        <h3 class="font-serif-crest text-xl font-bold text-slate-800">Ready for Recess Duty?</h3>
+        <p class="text-sm text-slate-600 max-w-md mx-auto">
+          Your menu is specially matched to your level (<span id="hawkerLevelLabel" class="font-bold text-[#00703C]">Primary 1</span>). Type the food words to serve as many orders as you can in 60 seconds!
+        </p>
+        <button onclick="hawkerGame.start()" class="px-8 py-3.5 rounded-xl bg-[#00703C] hover:bg-[#004D29] text-white font-bold text-base shadow-lg border-b-4 border-[#F2A900] transition">
+          Open Canteen Stall!
+        </button>
+      </div>
+
+      <div id="hawkerPlayView" class="hidden space-y-5" onclick="hawkerGame.focusInput()">
+        <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#FEF3C7] border border-[#F2A900] text-sm font-bold text-[#004D29]">
+          <span id="customerEmoji" class="text-2xl">🧒</span>
+          <span id="customerGreeting">"One bowl of noodles, please!"</span>
+        </div>
+
+        <div class="py-4">
+          <div id="foodEmojiDisplay" class="text-6xl mb-3">🍜</div>
+          <div id="hawkerWordDisplay" class="font-mono-typing text-3xl sm:text-4xl font-bold tracking-wider">
+            <!-- Order letters -->
+          </div>
+        </div>
+
+        <input
+          id="hawkerHiddenInput"
+          type="text"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          class="opacity-0 absolute pointer-events-none"
+        />
+        <p class="text-xs text-slate-400">Type the letters shown above on your keyboard</p>
+      </div>
+
+      <div id="hawkerOverView" class="hidden space-y-4 py-4">
+        <div class="text-5xl">🎉</div>
+        <h3 class="font-serif-crest text-2xl font-bold text-[#004D29]">Recess Bell Rang!</h3>
+        <p class="text-base text-slate-700">
+          You served <strong id="hawkerFinalScore" class="text-[#00703C] text-xl">0</strong> orders!
+        </p>
+        <div class="flex justify-center gap-3 pt-2">
+          <button onclick="hawkerGame.start()" class="px-6 py-3 rounded-xl bg-[#00703C] hover:bg-[#004D29] text-white font-bold text-sm border-b-4 border-[#F2A900]">
+            Play Again
+          </button>
+          <button onclick="app.showScreen('stages')" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm">
+            Back to Lessons
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SCREEN 4: ANTHONIAN PASSPORT & BADGES                     -->
+  <!-- ========================================================= -->
+  <section id="screenPassport" class="hidden flex-1 max-w-4xl w-full mx-auto px-4 py-6 space-y-6 fade-in">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-2 border-[#00703C]/20">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+        <div>
+          <span class="text-xs font-extrabold uppercase tracking-wider text-[#00703C]">Official Student Record</span>
+          <h2 id="passportName" class="font-serif-crest text-2xl font-bold text-slate-800 mt-0.5">Student Name</h2>
+          <p id="passportClass" class="text-sm font-semibold text-amber-700">Class: 1 Gratitude</p>
+        </div>
+        <div class="bg-[#00703C] text-white px-5 py-3 rounded-2xl border-b-4 border-[#F2A900] text-center">
+          <div class="text-[11px] uppercase tracking-wider text-emerald-200">Phoenix Rank</div>
+          <div id="passportRank" class="font-serif-crest font-bold text-lg text-[#F2A900]">Fledgling Phoenix</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 my-6">
+        <div class="p-4 rounded-2xl bg-[#F6F9F7] border border-[#00703C]/20 text-center">
+          <div class="text-xs font-bold text-slate-500">Lessons Done</div>
+          <div id="statCompleted" class="text-2xl font-extrabold text-[#00703C] mt-1">0 / 6</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-[#F6F9F7] border border-[#00703C]/20 text-center">
+          <div class="text-xs font-bold text-slate-500">Stars Earned</div>
+          <div id="statStars" class="text-2xl font-extrabold text-amber-600 mt-1">0 ⭐</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-[#F6F9F7] border border-[#00703C]/20 text-center">
+          <div class="text-xs font-bold text-slate-500">Best Speed</div>
+          <div id="statBestWpm" class="text-2xl font-extrabold text-[#00703C] mt-1">0 WPM</div>
+        </div>
+        <div class="p-4 rounded-2xl bg-[#F6F9F7] border border-[#00703C]/20 text-center">
+          <div class="text-xs font-bold text-slate-500">Canteen High Score</div>
+          <div id="statCanteenBest" class="text-2xl font-extrabold text-[#00703C] mt-1">0</div>
+        </div>
+      </div>
+
+      <h3 class="font-serif-crest font-bold text-lg text-slate-800 mb-3">Lesson Breakdown</h3>
+      <div id="passportLessonList" class="space-y-2.5">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- STAGE COMPLETION MODAL                                    -->
+  <!-- ========================================================= -->
+  <div id="completionModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl border-4 border-[#F2A900] space-y-5 fade-in">
+      <div class="text-5xl">🦅✨</div>
+      <div>
+        <span class="text-xs font-extrabold uppercase tracking-widest text-[#00703C]">Crescit Eundo!</span>
+        <h3 id="modalLessonTitle" class="font-serif-crest text-2xl font-bold text-slate-800 mt-1">Lesson Complete!</h3>
+      </div>
+
+      <div id="modalStars" class="text-3xl tracking-widest">⭐⭐⭐</div>
+
+      <div class="grid grid-cols-2 gap-3 bg-[#F6F9F7] p-4 rounded-2xl border border-[#00703C]/20">
+        <div>
+          <div class="text-xs text-slate-500 font-bold">Your Speed</div>
+          <div id="modalWpm" class="text-xl font-extrabold text-[#00703C]">12 WPM</div>
+        </div>
+        <div>
+          <div class="text-xs text-slate-500 font-bold">Accuracy</div>
+          <div id="modalAcc" class="text-xl font-extrabold text-[#00703C]">98%</div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <button onclick="app.closeModalAndNext()" class="flex-1 py-3 px-4 rounded-xl bg-[#00703C] hover:bg-[#004D29] text-white font-bold text-sm border-b-4 border-[#F2A900] transition">
+          Next Lesson →
+        </button>
+        <button onclick="app.closeModalToStages()" class="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition">
+          Lesson Map
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- APPLICATION SCRIPT                                        -->
+  <!-- ========================================================= -->
+  <script>
+    // Pre-configured silent Google Spreadsheet backend endpoint
+    const BACKEND_CONFIG = {
+      googleSheetEndpoint: 'https://script.google.com/macros/s/AKfycbw0u4aIqMVTdhD18Ck-5-VwOu_wSV9pFLep6dktD3KmzsmAJJyL_cmQsaLcrCu-9Y8k/exec',
+      schoolName: "St. Anthony's Primary School"
+    };
+
+    // P1 & P2 Touch-Typing Curriculum
+    const CURRICULUM = {
+      P1: [
+        {
+          id: 'p1-1',
+          step: 'Primary 1 • Step 1',
+          title: 'Home Row Anchors: F & J',
+          description: 'Feel the bumps on F and J with your pointer fingers.',
+          goalWpm: 6,
+          passages: [
+            'fff jjj fff jjj',
+            'fj fj jf jf ff jj',
+            'fjf jfj fff jjj',
+            'ff jj fj jf fjf'
+          ]
+        },
+        {
+          id: 'p1-2',
+          step: 'Primary 1 • Step 2',
+          title: 'Middle Fingers: D & K',
+          description: 'Keep pointer fingers on F and J, and tap D and K.',
+          goalWpm: 7,
+          passages: [
+            'ddd kkk ddd kkk',
+            'df jk fd kj df jk',
+            'dfd jkj dkf jfd',
+            'dk kd fj df jk'
+          ]
+        },
+        {
+          id: 'p1-3',
+          step: 'Primary 1 • Step 3',
+          title: 'Ring Fingers: S & L',
+          description: 'Use your ring fingers gently for S and L.',
+          goalWpm: 8,
+          passages: [
+            'sss lll sss lll',
+            'sl ls sdl lks',
+            'ask lad dad sad',
+            'all fall salad flasks'
+          ]
+        },
+        {
+          id: 'p1-4',
+          step: 'Primary 1 • Step 4',
+          title: 'Pinky Fingers: A & ;',
+          description: 'Complete the home row outer keys with A and ;.',
+          goalWpm: 9,
+          passages: [
+            'aaa ;;; aaa ;;;',
+            'asdf jkl; asdf jkl;',
+            'a lad asks dad',
+            'all lads add salad;'
+          ]
+        },
+        {
+          id: 'p1-5',
+          step: 'Primary 1 • Step 5',
+          title: 'Pointer Reaches: G & H',
+          description: 'Stretch your pointer fingers inward to G and H.',
+          goalWpm: 10,
+          passages: [
+            'fgf jhj fgf jhj',
+            'glad hall half flag',
+            'a glad lad had a flag',
+            'dash flash glass shall'
+          ]
+        },
+        {
+          id: 'p1-6',
+          step: 'Primary 1 • Step 6',
+          title: 'Anthonian First Words',
+          description: 'Combine home row letters with E and I to spell school words.',
+          goalWpm: 11,
+          passages: [
+            'i like saps',
+            'faith and service',
+            'be kind and safe',
+            'we grow as we advance'
+          ]
+        }
+      ],
+      P2: [
+        {
+          id: 'p2-1',
+          step: 'Primary 2 • Step 1',
+          title: 'Home Row & Top Row Flow',
+          description: 'Warm up all home row fingers and reach smoothly to E, R, U, and I.',
+          goalWpm: 12,
+          passages: [
+            'asdf jkl; fjdk slal',
+            'sure fire ride side',
+            'kind friends help us',
+            'read and learn every day'
+          ]
+        },
+        {
+          id: 'p2-2',
+          step: 'Primary 2 • Step 2',
+          title: 'Capital Letters with Shift',
+          description: 'Hold Shift to type capital letters for names and places.',
+          goalWpm: 13,
+          passages: [
+            'St. Anthony Primary',
+            'Bukit Batok Street 32',
+            'Faith Service Community',
+            'Crescit Eundo'
+          ]
+        },
+        {
+          id: 'p2-3',
+          step: 'Primary 2 • Step 3',
+          title: 'Our Lasallian Values',
+          description: 'Practice full sentences celebrating our school values.',
+          goalWpm: 14,
+          passages: [
+            'We show gratitude every day.',
+            'Respect makes our class happy.',
+            'Integrity means doing what is right.',
+            'Resilience helps us try again.'
+          ]
+        },
+        {
+          id: 'p2-4',
+          step: 'Primary 2 • Step 4',
+          title: 'The Phoenix Crest',
+          description: 'Learn the story of the rising Phoenix on our school badge.',
+          goalWpm: 15,
+          passages: [
+            'Our school began in 1879.',
+            'The Phoenix rises with new strength.',
+            'Green and gold are our school colours.',
+            'Enter to Learn. Leave to Serve.'
+          ]
+        },
+        {
+          id: 'p2-5',
+          step: 'Primary 2 • Step 5',
+          title: 'Bukit Batok Neighbourhood',
+          description: 'Type sentences about our school neighbourhood in Singapore.',
+          goalWpm: 16,
+          passages: [
+            'Little Guilin has tall granite cliffs.',
+            'We walk safely to school each morning.',
+            'Birds sing in Bukit Batok Nature Park.',
+            'We keep our canteen clean and tidy.'
+          ]
+        },
+        {
+          id: 'p2-6',
+          step: 'Primary 2 • Step 6',
+          title: 'Anthonian Rally Challenge',
+          description: 'Show your Primary 2 speed and accuracy on our school motto!',
+          goalWpm: 18,
+          passages: [
+            'Attention Anthonians, your motto still bearing!',
+            'Growing as we advance in faith and love.',
+            'Students of Saint Anthony, valiant and true.',
+            'Well done, Anthonian! You earned your wings.'
+          ]
+        }
+      ]
+    };
+
+    // Canteen Game Menus by Level
+    const CANTEEN_MENU = {
+      P1: [
+        { word: 'fish', emoji: '🐟', greeting: '"One steamed fish set, please!"' },
+        { word: 'milk', emoji: '🥛', greeting: '"A cold packet of milk, please!"' },
+        { word: 'cake', emoji: '🧁', greeting: '"One soft cupcake for recess!"' },
+        { word: 'rice', emoji: '🍚', greeting: '"A warm bowl of rice, please!"' },
+        { word: 'eggs', emoji: '🍳', greeting: '"Two sunny eggs on toast!"' },
+        { word: 'pear', emoji: '🍐', greeting: '"A sweet green pear, please!"' },
+        { word: 'soup', emoji: '🥣', greeting: '"Hot vegetable soup, please!"' },
+        { word: 'bun', emoji: '🥯', greeting: '"One warm kaya bun, please!"' }
+      ],
+      P2: [
+        { word: 'chicken rice', emoji: '🍗', greeting: '"One plate of chicken rice, please!"' },
+        { word: 'kaya toast', emoji: '🍞', greeting: '"Crispy kaya toast for breakfast!"' },
+        { word: 'fishball soup', emoji: '🍜', greeting: '"Warm fishball noodle soup, please!"' },
+        { word: 'milo dinosaur', emoji: '🥤', greeting: '"One iced Milo drink, please!"' },
+        { word: 'roti prata', emoji: '🥞', greeting: '"Two hot roti prata, please!"' },
+        { word: 'fresh apple', emoji: '🍎', greeting: '"A crunchy red apple for recess!"' },
+        { word: 'fried bee hoon', emoji: '🍝', greeting: '"One plate of fried bee hoon!"' },
+        { word: 'curry puff', emoji: '🥟', greeting: '"One golden curry puff, please!"' }
+      ]
+    };
+
+    // Synthesized Sound Effects using Tone.js
+    const soundEngine = {
+      enabled: true,
+      synth: null,
+
+      init() {
+        try {
+          if (window.Tone && !this.synth) {
+            this.synth = new Tone.PolySynth(Tone.Synth, {
+              oscillator: { type: 'triangle' },
+              envelope: { attack: 0.01, decay: 0.1, sustain: 0.05, release: 0.2 }
+            }).toDestination();
+            this.synth.volume.value = -10;
+          }
+        } catch (e) {
+          // Audio context deferred until user interaction
+        }
+      },
+
+      toggle() {
+        this.enabled = !this.enabled;
+        document.getElementById('soundIcon').textContent = this.enabled ? '🔊' : '🔇';
+      },
+
+      playKey() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (Tone.context.state !== 'running') Tone.start();
+          this.synth.triggerAttackRelease('C5', '32n');
+        } catch (e) {}
+      },
+
+      playError() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (Tone.context.state !== 'running') Tone.start();
+          this.synth.triggerAttackRelease('F3', '16n');
+        } catch (e) {}
+      },
+
+      playSuccess() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (Tone.context.state !== 'running') Tone.start();
+          const now = Tone.now();
+          this.synth.triggerAttackRelease('C5', '16n', now);
+          this.synth.triggerAttackRelease('E5', '16n', now + 0.08);
+          this.synth.triggerAttackRelease('G5', '16n', now + 0.16);
+          this.synth.triggerAttackRelease('C6', '8n', now + 0.24);
+        } catch (e) {}
+      }
+    };
+
+    // Silent Background Backend Sync
+    const backendSync = {
+      async logEvent(eventType, details) {
+        const payload = {
+          timestamp: new Date().toISOString(),
+          school: BACKEND_CONFIG.schoolName,
+          studentName: app.student.name,
+          studentClass: app.student.className,
+          level: app.student.level,
+          eventType,
+          ...details
+        };
+
+        try {
+          const logs = JSON.parse(localStorage.getItem('saps_typing_audit_log') || '[]');
+          logs.push(payload);
+          localStorage.setItem('saps_typing_audit_log', JSON.stringify(logs.slice(-200)));
+        } catch (e) {}
+
+        if (BACKEND_CONFIG.googleSheetEndpoint) {
+          try {
+            fetch(BACKEND_CONFIG.googleSheetEndpoint, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            }).catch(() => {});
+          } catch (e) {}
+        }
+      }
+    };
+
+    // Active Typing Lesson Engine
+    const game = {
+      currentStage: null,
+      passageIndex: 0,
+      charIndex: 0,
+      startTime: null,
+      totalTyped: 0,
+      errors: 0,
+      active: false,
+
+      startStage(stageId) {
+        const list = CURRICULUM[app.student.level] || CURRICULUM.P1;
+        const stage = list.find(s => s.id === stageId);
+        if (!stage) return;
+
+        this.currentStage = stage;
+        this.passageIndex = 0;
+        this.charIndex = 0;
+        this.startTime = null;
+        this.totalTyped = 0;
+        this.errors = 0;
+        this.active = true;
+
+        document.getElementById('arenaStageBadge').textContent = stage.step;
+        document.getElementById('arenaStageTitle').textContent = stage.title;
+        document.getElementById('goalWpm').textContent = stage.goalWpm;
+        document.getElementById('liveWpm').textContent = '0';
+        document.getElementById('liveAccuracy').textContent = '100';
+
+        app.showScreen('typing');
+        this.active = true;
+        this.renderPassage();
+        this.updateProgressTrack();
+        setTimeout(() => this.focusInput(), 50);
+      },
+
+      restartStage() {
+        if (this.currentStage) {
+          this.startStage(this.currentStage.id);
+        }
+      },
+
+      focusInput() {
+        try { window.focus(); } catch (e) {}
+        const input = document.getElementById('hiddenTypingInput');
+        if (input) {
+          input.removeAttribute('disabled');
+          input.removeAttribute('readonly');
+          input.value = '';
+          input.focus({ preventScroll: true });
+        }
+      },
+
+      renderPassage() {
+        const stage = this.currentStage;
+        const text = stage.passages[this.passageIndex];
+        const display = document.getElementById('passageDisplay');
+        display.innerHTML = '';
+
+        for (let i = 0; i < text.length; i++) {
+          const span = document.createElement('span');
+          span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+          if (i < this.charIndex) {
+            span.className = 'char-correct';
+          } else if (i === this.charIndex) {
+            span.className = 'char-current';
+          } else {
+            span.className = 'char-pending';
+          }
+          display.appendChild(span);
+        }
+
+        document.getElementById('passageCounter').textContent =
+          `Sentence ${this.passageIndex + 1} of ${stage.passages.length}`;
+        this.highlightNextKey(text[this.charIndex]);
+      },
+
+      highlightNextKey(nextChar) {
+        document.querySelectorAll('.key-cap').forEach(k => k.classList.remove('key-target'));
+        document.querySelectorAll('.finger-pill').forEach(f => {
+          f.style.transform = '';
+          f.style.boxShadow = '';
+        });
+        if (!nextChar) return;
+
+        const targetCode = nextChar === ' ' ? 'SPACE' : nextChar.toUpperCase();
+        const keyCap = document.querySelector(`.key-cap[data-key="${CSS.escape(targetCode)}"]`);
+        if (keyCap) {
+          keyCap.classList.add('key-target');
+          const fingerCode = keyCap.getAttribute('data-finger');
+          if (fingerCode) {
+            document.querySelectorAll(`.finger-pill[data-hand-finger="${fingerCode}"]`).forEach(pill => {
+              pill.style.transform = 'translateY(-6px) scale(1.08)';
+              pill.style.boxShadow = '0 0 0 3px #F2A900';
+            });
+          }
+        }
+
+        const hintEl = document.getElementById('fingerHintText');
+        const activeFingerEl = document.getElementById('activeFingerLabel');
+        const fingerMap = {
+          'q': 'Left Pinky Finger (Q)',
+          'a': 'Left Pinky Finger (A)',
+          'z': 'Left Pinky Finger (Z)',
+          'w': 'Left Ring Finger (W)',
+          's': 'Left Ring Finger (S)',
+          'x': 'Left Ring Finger (X)',
+          'e': 'Left Middle Finger (E)',
+          'd': 'Left Middle Finger (D)',
+          'c': 'Left Middle Finger (C)',
+          'r': 'Left Index Finger (R)',
+          'f': 'Left Index Finger (F bump)',
+          'v': 'Left Index Finger (V)',
+          't': 'Left Index Finger (T)',
+          'g': 'Left Index Finger (G)',
+          'b': 'Left Index Finger (B)',
+          'y': 'Right Index Finger (Y)',
+          'h': 'Right Index Finger (H)',
+          'n': 'Right Index Finger (N)',
+          'u': 'Right Index Finger (U)',
+          'j': 'Right Index Finger (J bump)',
+          'm': 'Right Index Finger (M)',
+          'i': 'Right Middle Finger (I)',
+          'k': 'Right Middle Finger (K)',
+          ',': 'Right Middle Finger (,)',
+          'o': 'Right Ring Finger (O)',
+          'l': 'Right Ring Finger (L)',
+          '.': 'Right Ring Finger (.)',
+          'p': 'Right Pinky Finger (P)',
+          ';': 'Right Pinky Finger (;)'
+        };
+
+        if (nextChar === ' ') {
+          hintEl.innerHTML = 'Tap the <strong>Spacebar</strong> gently with either thumb.';
+          if (activeFingerEl) activeFingerEl.textContent = 'Either Thumb (Spacebar)';
+        } else if (/[A-Z]/.test(nextChar)) {
+          const baseFinger = fingerMap[nextChar.toLowerCase()] || nextChar;
+          hintEl.innerHTML = `Hold <strong>Shift</strong> and tap <strong>${nextChar}</strong> with your <strong>${baseFinger}</strong>.`;
+          if (activeFingerEl) activeFingerEl.textContent = `Shift + ${baseFinger}`;
+        } else if (fingerMap[nextChar.toLowerCase()]) {
+          const label = fingerMap[nextChar.toLowerCase()];
+          hintEl.innerHTML = `Use your <strong>${label}</strong>!`;
+          if (activeFingerEl) activeFingerEl.textContent = label;
+        } else {
+          hintEl.innerHTML = `Next key: <strong>${nextChar}</strong> — keep your index fingers resting on F and J!`;
+          if (activeFingerEl) activeFingerEl.textContent = `Key: ${nextChar}`;
+        }
+      },
+
+      handleKeyInput(typedChar) {
+        if (!this.active || !this.currentStage) return;
+        const text = this.currentStage.passages[this.passageIndex];
+        const expectedChar = text[this.charIndex];
+        if (!expectedChar) return;
+
+        if (!this.startTime) {
+          this.startTime = Date.now();
+        }
+
+        // Visual key press pulse
+        const keyCode = typedChar === ' ' ? 'SPACE' : typedChar.toUpperCase();
+        const pressedCap = document.querySelector(`.key-cap[data-key="${CSS.escape(keyCode)}"]`);
+        if (pressedCap) {
+          pressedCap.classList.add('key-pressed');
+          setTimeout(() => pressedCap.classList.remove('key-pressed'), 110);
+        }
+
+        this.totalTyped++;
+
+        if (typedChar === expectedChar) {
+          soundEngine.playKey();
+          this.charIndex++;
+          this.updateTelemetry();
+
+          if (this.charIndex >= text.length) {
+            this.passageIndex++;
+            this.charIndex = 0;
+
+            if (this.passageIndex >= this.currentStage.passages.length) {
+              this.completeStage();
+              return;
+            }
+          }
+          this.renderPassage();
+          this.updateProgressTrack();
+        } else {
+          soundEngine.playError();
+          this.errors++;
+          this.updateTelemetry();
+          const spans = document.getElementById('passageDisplay').children;
+          if (spans[this.charIndex]) {
+            spans[this.charIndex].className = 'char-error';
+          }
+        }
+      },
+
+      updateTelemetry() {
+        if (!this.startTime) return;
+        const elapsedMinutes = Math.max((Date.now() - this.startTime) / 60000, 0.02);
+        const correctChars = Math.max(this.totalTyped - this.errors, 0);
+        const wpm = Math.round((correctChars / 5) / elapsedMinutes);
+        const accuracy = this.totalTyped > 0
+          ? Math.max(0, Math.round((correctChars / this.totalTyped) * 100))
+          : 100;
+
+        document.getElementById('liveWpm').textContent = wpm;
+        document.getElementById('liveAccuracy').textContent = accuracy;
+      },
+
+      updateProgressTrack() {
+        const stage = this.currentStage;
+        const totalChars = stage.passages.reduce((acc, p) => acc + p.length, 0);
+        const completedChars =
+          stage.passages.slice(0, this.passageIndex).reduce((acc, p) => acc + p.length, 0) +
+          this.charIndex;
+        const pct = Math.min(100, Math.round((completedChars / totalChars) * 100));
+
+        document.getElementById('arenaProgressFill').style.width = `${pct}%`;
+        document.getElementById('phoenixRunner').style.left = `calc(${pct}% - 12px)`;
+      },
+
+      completeStage() {
+        this.active = false;
+        soundEngine.playSuccess();
+
+        const wpm = parseInt(document.getElementById('liveWpm').textContent, 10) || this.currentStage.goalWpm;
+        const accuracy = parseInt(document.getElementById('liveAccuracy').textContent, 10) || 100;
+
+        let stars = 1;
+        if (accuracy >= 95 && wpm >= this.currentStage.goalWpm) {
+          stars = 3;
+        } else if (accuracy >= 85) {
+          stars = 2;
+        }
+
+        app.recordStageCompletion(this.currentStage.id, wpm, accuracy, stars);
+
+        document.getElementById('modalLessonTitle').textContent = this.currentStage.title;
+        document.getElementById('modalStars').textContent = '⭐'.repeat(stars);
+        document.getElementById('modalWpm').textContent = `${wpm} WPM`;
+        document.getElementById('modalAcc').textContent = `${accuracy}%`;
+        document.getElementById('completionModal').classList.remove('hidden');
+
+        backendSync.logEvent('LESSON_COMPLETED', {
+          lessonId: this.currentStage.id,
+          lessonTitle: this.currentStage.title,
+          wpm,
+          accuracy,
+          stars
+        });
+      }
+    };
+
+    // Anthonian Canteen & Hawker Stall Mini-Game
+    const hawkerGame = {
+      active: false,
+      timeLeft: 60,
+      score: 0,
+      timerInterval: null,
+      currentOrder: null,
+      charIndex: 0,
+
+      start() {
+        this.active = true;
+        this.timeLeft = 60;
+        this.score = 0;
+        this.charIndex = 0;
+
+        document.getElementById('hawkerTimer').textContent = '60s';
+        document.getElementById('hawkerScore').textContent = '0';
+        document.getElementById('hawkerIntroView').classList.add('hidden');
+        document.getElementById('hawkerOverView').classList.add('hidden');
+        document.getElementById('hawkerPlayView').classList.remove('hidden');
+
+        this.nextOrder();
+        setTimeout(() => this.focusInput(), 50);
+
+        clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+          this.timeLeft--;
+          document.getElementById('hawkerTimer').textContent = `${this.timeLeft}s`;
+          if (this.timeLeft <= 0) {
+            this.endGame();
+          }
+        }, 1000);
+      },
+
+      focusInput() {
+        try { window.focus(); } catch (e) {}
+        const inp = document.getElementById('hawkerHiddenInput');
+        if (inp) {
+          inp.value = '';
+          inp.focus({ preventScroll: true });
+        }
+      },
+
+      nextOrder() {
+        const menu = CANTEEN_MENU[app.student.level] || CANTEEN_MENU.P1;
+        const customers = ['🧒', '👧', '🧑', '👩‍🏫', '👨‍🏫'];
+        this.currentOrder = menu[Math.floor(Math.random() * menu.length)];
+        this.charIndex = 0;
+
+        document.getElementById('customerEmoji').textContent =
+          customers[Math.floor(Math.random() * customers.length)];
+        document.getElementById('customerGreeting').textContent = this.currentOrder.greeting;
+        document.getElementById('foodEmojiDisplay').textContent = this.currentOrder.emoji;
+
+        this.renderOrderWord();
+      },
+
+      renderOrderWord() {
+        const word = this.currentOrder.word;
+        const box = document.getElementById('hawkerWordDisplay');
+        box.innerHTML = '';
+
+        for (let i = 0; i < word.length; i++) {
+          const span = document.createElement('span');
+          span.textContent = word[i] === ' ' ? '\u00A0' : word[i];
+          if (i < this.charIndex) {
+            span.className = 'char-correct';
+          } else if (i === this.charIndex) {
+            span.className = 'char-current';
+          } else {
+            span.className = 'char-pending';
+          }
+          box.appendChild(span);
+        }
+      },
+
+      handleKey(typedChar) {
+        if (!this.active || !this.currentOrder) return;
+        const expected = this.currentOrder.word[this.charIndex];
+
+        if (typedChar.toLowerCase() === expected.toLowerCase()) {
+          soundEngine.playKey();
+          this.charIndex++;
+          if (this.charIndex >= this.currentOrder.word.length) {
+            this.score++;
+            document.getElementById('hawkerScore').textContent = this.score;
+            soundEngine.playSuccess();
+            this.nextOrder();
+          } else {
+            this.renderOrderWord();
+          }
+        } else {
+          soundEngine.playError();
+          const spans = document.getElementById('hawkerWordDisplay').children;
+          if (spans[this.charIndex]) spans[this.charIndex].className = 'char-error';
+        }
+      },
+
+      endGame() {
+        this.active = false;
+        clearInterval(this.timerInterval);
+
+        document.getElementById('hawkerPlayView').classList.add('hidden');
+        document.getElementById('hawkerOverView').classList.remove('hidden');
+        document.getElementById('hawkerFinalScore').textContent = this.score;
+
+        if (this.score > (app.progress.canteenBest || 0)) {
+          app.progress.canteenBest = this.score;
+          app.saveProgress();
+        }
+
+        backendSync.logEvent('CANTEEN_GAME_COMPLETED', {
+          ordersServed: this.score
+        });
+      }
+    };
+
+    // Main Application State Controller
+    const app = {
+      student: null,
+      progress: {
+        completed: {},
+        canteenBest: 0
+      },
+
+      init() {
+        this.bindKeyboardListeners();
+        const savedStudent = localStorage.getItem('saps_active_student');
+        if (savedStudent) {
+          try {
+            this.student = JSON.parse(savedStudent);
+            this.loadProgress();
+            this.enterClassroom();
+            return;
+          } catch (e) {}
+        }
+        this.showLoginScreen();
+      },
+
+      bindKeyboardListeners() {
+        let lastEventStamp = -1;
+
+        const dispatchChar = (ch, stamp) => {
+          if (!ch || typeof ch !== 'string') return;
+          if (typeof stamp === 'number' && stamp === lastEventStamp) return;
+          if (typeof stamp === 'number') lastEventStamp = stamp;
+
+          if (game.active) {
+            game.handleKeyInput(ch);
+          } else if (hawkerGame.active) {
+            hawkerGame.handleKey(ch);
+          }
+        };
+
+        // Keep focus inside the typing input whenever the user clicks anywhere in the typing/canteen screen
+        document.addEventListener('click', (e) => {
+          if (e.target && e.target.closest('button, select')) return;
+          if (game.active) {
+            game.focusInput();
+          } else if (hawkerGame.active) {
+            hawkerGame.focusInput();
+          }
+        });
+
+        // Allow clicking/tapping the on-screen visual keyboard keys as well
+        document.querySelectorAll('#visualKeyboard .key-cap').forEach((keyEl) => {
+          keyEl.style.cursor = 'pointer';
+          keyEl.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!game.active || !game.currentStage) return;
+            const rawKey = keyEl.getAttribute('data-key');
+            if (!rawKey) return;
+            if (rawKey === 'SPACE') {
+              dispatchChar(' ', e.timeStamp);
+            } else {
+              const text = game.currentStage.passages[game.passageIndex] || '';
+              const expected = text[game.charIndex] || '';
+              const charToSend = (expected && expected.toUpperCase() === rawKey) ? expected : rawKey.toLowerCase();
+              dispatchChar(charToSend, e.timeStamp);
+            }
+            game.focusInput();
+          });
+        });
+
+        // Attach input & keydown listeners to both lesson and canteen inputs
+        ['hiddenTypingInput', 'hawkerHiddenInput'].forEach((inputId) => {
+          const inp = document.getElementById(inputId);
+          if (!inp) return;
+
+          inp.addEventListener('focus', () => {
+            const pill = document.getElementById('focusStatusText');
+            if (pill) pill.textContent = 'Keyboard connected — start typing!';
+          });
+
+          inp.addEventListener('blur', () => {
+            const pill = document.getElementById('focusStatusText');
+            if (pill) pill.textContent = 'Click inside this box to activate keyboard';
+          });
+
+          inp.addEventListener('input', (e) => {
+            const val = e.target.value;
+            e.target.value = '';
+            if (!val) return;
+            for (const ch of val) {
+              if (game.active) {
+                game.handleKeyInput(ch);
+              } else if (hawkerGame.active) {
+                hawkerGame.handleKey(ch);
+              }
+            }
+          });
+        });
+
+        // Fallback document keydown only when neither input is focused
+        document.addEventListener('keydown', (e) => {
+          if (!e || e.ctrlKey || e.metaKey || e.altKey) return;
+          const activeTag = document.activeElement ? document.activeElement.id : '';
+          if (activeTag === 'hiddenTypingInput' || activeTag === 'hawkerHiddenInput' || activeTag === 'studentNameInput') {
+            return;
+          }
+          const keyChar = (e.code === 'Space' || e.key === 'Spacebar') ? ' ' : e.key;
+          if (typeof keyChar === 'string' && keyChar.length === 1) {
+            if (game.active) {
+              e.preventDefault();
+              game.focusInput();
+              game.handleKeyInput(keyChar);
+            } else if (hawkerGame.active) {
+              e.preventDefault();
+              hawkerGame.focusInput();
+              hawkerGame.handleKey(keyChar);
+            }
+          }
+        });
+      },
+
+      handleLogin(e) {
+        e.preventDefault();
+        const name = document.getElementById('studentNameInput').value.trim();
+        const className = document.getElementById('studentClassSelect').value;
+        const errBox = document.getElementById('loginErrorMsg');
+
+        if (!name || !className) {
+          errBox.classList.remove('hidden');
+          return;
+        }
+        errBox.classList.add('hidden');
+
+        const level = className.startsWith('2') ? 'P2' : 'P1';
+        this.student = { name, className, level };
+        localStorage.setItem('saps_active_student', JSON.stringify(this.student));
+        this.loadProgress();
+
+        backendSync.logEvent('STUDENT_SIGN_IN', {});
+        this.enterClassroom();
+      },
+
+      logoutStudent() {
+        game.active = false;
+        hawkerGame.active = false;
+        clearInterval(hawkerGame.timerInterval);
+        localStorage.removeItem('saps_active_student');
+        this.student = null;
+        document.getElementById('studentNameInput').value = '';
+        document.getElementById('studentClassSelect').value = '';
+        this.showLoginScreen();
+      },
+
+      showLoginScreen() {
+        document.getElementById('mainHeader').classList.add('hidden');
+        document.getElementById('screenStages').classList.add('hidden');
+        document.getElementById('screenTyping').classList.add('hidden');
+        document.getElementById('screenCanteen').classList.add('hidden');
+        document.getElementById('screenPassport').classList.add('hidden');
+        document.getElementById('screenLogin').classList.remove('hidden');
+      },
+
+      enterClassroom() {
+        document.getElementById('screenLogin').classList.add('hidden');
+        document.getElementById('mainHeader').classList.remove('hidden');
+        document.getElementById('headerStudentName').textContent = this.student.name;
+        document.getElementById('headerStudentClass').textContent = this.student.className;
+
+        const isP2 = this.student.level === 'P2';
+        document.getElementById('levelBadge').textContent = isP2
+          ? 'Primary 2 Touch-Typing Track'
+          : 'Primary 1 Beginner Touch-Typing Track';
+        document.getElementById('welcomeHeading').textContent =
+          `Welcome, ${this.student.name} (${this.student.className})!`;
+        document.getElementById('welcomeSubtext').textContent = isP2
+          ? 'Build your speed with capital letters, Lasallian values, and Anthonian heritage sentences!'
+          : 'Start from Step 1 with your pointer fingers on F and J. No typing experience needed—take your time!';
+        document.getElementById('hawkerLevelLabel').textContent = isP2 ? 'Primary 2' : 'Primary 1';
+
+        this.renderStages();
+        this.showScreen('stages');
+      },
+
+      getStorageKey() {
+        return `saps_progress_${this.student.className}_${this.student.name.toLowerCase()}`;
+      },
+
+      loadProgress() {
+        try {
+          const raw = localStorage.getItem(this.getStorageKey());
+          if (raw) {
+            this.progress = JSON.parse(raw);
+          } else {
+            this.progress = { completed: {}, canteenBest: 0 };
+          }
+        } catch (e) {
+          this.progress = { completed: {}, canteenBest: 0 };
+        }
+      },
+
+      saveProgress() {
+        try {
+          localStorage.setItem(this.getStorageKey(), JSON.stringify(this.progress));
+        } catch (e) {}
+      },
+
+      recordStageCompletion(stageId, wpm, accuracy, stars) {
+        const existing = this.progress.completed[stageId];
+        if (!existing || stars >= existing.stars || wpm > existing.wpm) {
+          this.progress.completed[stageId] = {
+            wpm: Math.max(wpm, existing ? existing.wpm : 0),
+            accuracy: Math.max(accuracy, existing ? existing.accuracy : 0),
+            stars: Math.max(stars, existing ? existing.stars : 0)
+          };
+        }
+        this.saveProgress();
+        this.renderStages();
+      },
+
+      showScreen(screenName) {
+        game.active = false;
+        if (screenName !== 'canteen') {
+          hawkerGame.active = false;
+          clearInterval(hawkerGame.timerInterval);
+        }
+
+        ['screenStages', 'screenTyping', 'screenCanteen', 'screenPassport'].forEach(id => {
+          document.getElementById(id).classList.add('hidden');
+        });
+
+        ['navStagesBtn', 'navCanteenBtn', 'navPassportBtn'].forEach(id => {
+          const btn = document.getElementById(id);
+          btn.classList.remove('bg-[#F2A900]', 'text-[#004D29]');
+          btn.classList.add('text-white');
+        });
+
+        if (screenName === 'stages') {
+          document.getElementById('screenStages').classList.remove('hidden');
+          const btn = document.getElementById('navStagesBtn');
+          btn.classList.add('bg-[#F2A900]', 'text-[#004D29]');
+          btn.classList.remove('text-white');
+          this.renderStages();
+        } else if (screenName === 'typing') {
+          document.getElementById('screenTyping').classList.remove('hidden');
+        } else if (screenName === 'canteen') {
+          document.getElementById('screenCanteen').classList.remove('hidden');
+          const btn = document.getElementById('navCanteenBtn');
+          btn.classList.add('bg-[#F2A900]', 'text-[#004D29]');
+          btn.classList.remove('text-white');
+          document.getElementById('hawkerIntroView').classList.remove('hidden');
+          document.getElementById('hawkerPlayView').classList.add('hidden');
+          document.getElementById('hawkerOverView').classList.add('hidden');
+        } else if (screenName === 'passport') {
+          document.getElementById('screenPassport').classList.remove('hidden');
+          const btn = document.getElementById('navPassportBtn');
+          btn.classList.add('bg-[#F2A900]', 'text-[#004D29]');
+          btn.classList.remove('text-white');
+          this.renderPassport();
+        }
+      },
+
+      renderStages() {
+        const stages = CURRICULUM[this.student.level] || CURRICULUM.P1;
+        const grid = document.getElementById('stagesGrid');
+        grid.innerHTML = '';
+
+        let completedCount = 0;
+        let totalStars = 0;
+
+        stages.forEach((stage, idx) => {
+          const record = this.progress.completed[stage.id];
+          if (record) {
+            completedCount++;
+            totalStars += record.stars;
+          }
+
+          const card = document.createElement('div');
+          card.onclick = () => game.startStage(stage.id);
+          card.className = `cursor-pointer rounded-3xl p-5 bg-white border-2 transition hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between ${
+            record ? 'border-[#00703C]' : 'border-slate-200 hover:border-[#F2A900]'
+          }`;
+
+          const starsHtml = record
+            ? `<span class="text-sm font-bold text-amber-600">${'⭐'.repeat(record.stars)}</span>`
+            : `<span class="text-xs font-bold text-slate-400">New</span>`;
+
+          const statsHtml = record
+            ? `<span class="text-xs font-bold text-[#00703C]">Best: ${record.wpm} WPM • ${record.accuracy}%</span>`
+            : `<span class="text-xs font-semibold text-slate-500">Goal: ${stage.goalWpm} WPM</span>`;
+
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F6F9F7] text-[#00703C] border border-[#00703C]/20">
+                  Lesson ${idx + 1}
+                </span>
+                ${starsHtml}
+              </div>
+              <h4 class="font-serif-crest font-bold text-lg text-slate-800">${stage.title}</h4>
+              <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">${stage.description}</p>
+            </div>
+            <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between">
+              ${statsHtml}
+              <span class="px-3 py-1.5 rounded-xl text-xs font-bold ${
+                record ? 'bg-[#00703C] text-white' : 'bg-[#F2A900] text-[#004D29]'
+              }">
+                ${record ? 'Practice' : 'Start →'}
+              </span>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+        const pct = Math.round((completedCount / stages.length) * 100);
+        document.getElementById('progressFraction').textContent = `${completedCount} / ${stages.length}`;
+        document.getElementById('overallProgressBar').style.width = `${pct}%`;
+        document.getElementById('totalStarsLabel').textContent = `${totalStars} ⭐`;
+      },
+
+      renderPassport() {
+        const stages = CURRICULUM[this.student.level] || CURRICULUM.P1;
+        document.getElementById('passportName').textContent = this.student.name;
+        document.getElementById('passportClass').textContent = `Class: ${this.student.className}`;
+
+        let completedCount = 0;
+        let totalStars = 0;
+        let bestWpm = 0;
+
+        const listEl = document.getElementById('passportLessonList');
+        listEl.innerHTML = '';
+
+        stages.forEach((stage, idx) => {
+          const rec = this.progress.completed[stage.id];
+          if (rec) {
+            completedCount++;
+            totalStars += rec.stars;
+            if (rec.wpm > bestWpm) bestWpm = rec.wpm;
+          }
+
+          const row = document.createElement('div');
+          row.className = 'flex items-center justify-between p-3.5 rounded-2xl bg-[#F6F9F7] border border-slate-200';
+          row.innerHTML = `
+            <div>
+              <div class="text-xs font-bold text-[#00703C]">Lesson ${idx + 1}</div>
+              <div class="text-sm font-bold text-slate-800">${stage.title}</div>
+            </div>
+            <div class="text-right">
+              ${
+                rec
+                  ? `<div class="text-sm">${'⭐'.repeat(rec.stars)}</div>
+                     <div class="text-xs font-semibold text-slate-600">${rec.wpm} WPM • ${rec.accuracy}%</div>`
+                  : `<span class="text-xs font-semibold text-slate-400">Not completed yet</span>`
+              }
+            </div>
+          `;
+          listEl.appendChild(row);
+        });
+
+        let rank = 'Fledgling Phoenix';
+        if (completedCount >= 6) rank = 'Golden Anthonian Phoenix';
+        else if (completedCount >= 4) rank = 'Soaring Phoenix';
+        else if (completedCount >= 2) rank = 'Rising Phoenix';
+
+        document.getElementById('passportRank').textContent = rank;
+        document.getElementById('statCompleted').textContent = `${completedCount} / ${stages.length}`;
+        document.getElementById('statStars').textContent = `${totalStars} ⭐`;
+        document.getElementById('statBestWpm').textContent = `${bestWpm} WPM`;
+        document.getElementById('statCanteenBest').textContent = this.progress.canteenBest || 0;
+      },
+
+      closeModalToStages() {
+        document.getElementById('completionModal').classList.add('hidden');
+        this.showScreen('stages');
+      },
+
+      closeModalAndNext() {
+        document.getElementById('completionModal').classList.add('hidden');
+        const stages = CURRICULUM[this.student.level] || CURRICULUM.P1;
+        const currentIdx = stages.findIndex(s => s.id === game.currentStage?.id);
+        if (currentIdx >= 0 && currentIdx + 1 < stages.length) {
+          game.startStage(stages[currentIdx + 1].id);
+        } else {
+          this.showScreen('stages');
+        }
+      }
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      app.init();
+    });
+  </script>
+</body>
+</html>
